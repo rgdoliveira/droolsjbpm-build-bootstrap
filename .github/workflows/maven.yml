@@ -1,0 +1,31 @@
+name: Java CI with Maven and treat maven dependency plugin
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up JDK 11
+      uses: actions/setup-java@v2
+      with:
+        java-version: '11'
+        distribution: 'temurin'
+        cache: maven
+    - name: Build with Maven
+      run: mvn -B package --file pom.xml dependency:tree -l ./my-log.log
+    - name: Check log
+      uses: rgdoliveira/treat-maven-dependency-plugin-log@main_5
+      with:
+        log-file-path: './my-log.log'
+    - name: Archive artifacts
+      uses: actions/upload-artifact@v2
+      with:
+        name: dependency-log
+        path: |
+          my-log.log
